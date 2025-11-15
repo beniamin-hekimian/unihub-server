@@ -4,7 +4,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const express = require("express");
 const connectDB = require("./config/database");
-const authRoutes = require("./routes/auth");
+const authRoutes = require("./routes/authRoutes");
 
 // create express app
 const app = express();
@@ -18,13 +18,13 @@ app.use(cors({
   credentials: true,
 }));
 
-// Routes
-app.use("/api/auth", authRoutes);
-
 // Test route
 app.get("/", (_, res) => {
-  res.send("Hello from the server!");
+  res.send("Hello from the server! 🚀");
 });
+
+// Routes
+app.use("/auth", authRoutes);
 
 async function startServer() {
   await connectDB();
