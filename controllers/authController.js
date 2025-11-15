@@ -40,6 +40,7 @@ async function signin(req, res) {
         name: user.name,
         email: user.email,
         role: user.role,
+        gender: user.gender,
       },
     });
   } catch (error) {
