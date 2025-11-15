@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
     },
     password: {
       type: String,
@@ -18,8 +19,12 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["student", "admin"],
-      default: "student",
+      enum: ["admin", "professor", "student"],
+      required: true,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female"],
     },
   },
   {
@@ -27,4 +32,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+
+module.exports = User;
