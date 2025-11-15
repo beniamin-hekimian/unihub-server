@@ -48,4 +48,21 @@ async function signin(req, res) {
   }
 }
 
-module.exports = { signin };
+// GET /api/auth/me
+async function me(req, res) {
+  try {
+    const token = req.cookies["my-token-cookie"]; // match cookie name
+    if (!token) return res.status(401).json({ message: "Not authenticated" });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({ user });
+  } catch (error) {
+    console.error("MeController Error:", error.message);
+    res.status(401).json({ message: "Invalid token" });
+  }
+}
+
+module.exports = { signin, me };
