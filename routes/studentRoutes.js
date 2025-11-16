@@ -13,7 +13,7 @@ router.get("/", getAllStudents);
 // POST /students
 router.post("/", createStudent);
 
-// Update a student
+// PUT /students/:id
 router.put("/:id", updateStudent);
 
 // DELETE /students/:id

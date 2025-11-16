@@ -6,6 +6,7 @@ const express = require("express");
 const connectDB = require("./config/database");
 const authRoutes = require("./routes/authRoutes");
 const studentRoutes = require("./routes/studentRoutes");
+const professorRoutes = require("./routes/professorRoutes");
 
 // create express app
 const app = express();
@@ -27,6 +28,7 @@ app.get("/", (_, res) => {
 // Routes
 app.use("/auth", authRoutes);
 app.use("/students", studentRoutes);
+app.use("/professors", professorRoutes);
 
 async function startServer() {
   await connectDB();
