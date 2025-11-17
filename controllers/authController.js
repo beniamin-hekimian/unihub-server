@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-// POST /api/auth/signin
+// POST /auth/signin
 async function signin(req, res) {
   const { email, password } = req.body;
 
@@ -49,7 +49,7 @@ async function signin(req, res) {
   }
 }
 
-// GET /api/auth/me
+// GET /auth/me
 async function me(req, res) {
   try {
     const token = req.cookies["my-token-cookie"]; // match cookie name
@@ -66,4 +66,21 @@ async function me(req, res) {
   }
 }
 
-module.exports = { signin, me };
+// POST /auth/signout
+function signout(_, res) {
+  try {
+    res.clearCookie("my-token-cookie", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      path: "/",
+    });
+
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Signout Error:", error.message);
+    res.status(500).json({ message: "Server error during logout" });
+  }
+}
+
+module.exports = { signin, me, signout };
