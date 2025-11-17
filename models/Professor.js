@@ -12,6 +12,7 @@ const professorSchema = new mongoose.Schema({
   },
   department: {
     type: String,
+    required: true,
   },
 });
 

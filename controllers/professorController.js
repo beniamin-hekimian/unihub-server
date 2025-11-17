@@ -2,23 +2,21 @@ const Professor = require("../models/Professor");
 const User = require("../models/User");
 
 // GET all professors
-async function getAllProfessors(_, res) {
+async function getAllProfessors(req, res) {
   try {
-    // populate the user info
-    const professors = await Professor.find().populate(
-      "userId",
-      "name email gender"
-    );
+    const { department } = req.query;
 
-    res.status(200).json({
-      message: "Professors fetched successfully",
-      professors,
+    const filter = department ? { department } : {};
+
+    const professors = await Professor.find(filter).populate({
+      path: "userId",
+      select: "name email gender",
     });
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: "Failed to fetch professors", error: error.message });
+
+    res.status(200).json({ professors });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch professors" });
   }
 }
 
