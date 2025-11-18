@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Professor = require("../models/Professor");
 
 // POST /auth/signin
 async function signin(req, res) {
@@ -32,16 +33,31 @@ async function signin(req, res) {
       maxAge: 60 * 60 * 1000,
     });
 
-    // 5️⃣ Return minimal user info
+    // 5️⃣ Build base response
+    const userData = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      gender: user.gender,
+    };
+
+    // 6️⃣ If professor → fetch professor-specific data
+    if (user.role === "professor") {
+      const professor = await Professor.findOne({ userId: user._id });
+      if (professor) {
+        userData.professor = {
+          id: professor._id,
+          phone: professor.phone || null,
+          department: professor.department || null,
+        };
+      }
+    }
+
+    // 7️⃣ Send response
     res.json({
       message: "Signed in successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        gender: user.gender,
-      },
+      user: userData,
     });
   } catch (error) {
     console.error("AuthController Error:", error.message);
@@ -52,14 +68,38 @@ async function signin(req, res) {
 // GET /auth/me
 async function me(req, res) {
   try {
-    const token = req.cookies["my-token-cookie"]; // match cookie name
+    const token = req.cookies["my-token-cookie"];
     if (!token) return res.status(401).json({ message: "Not authenticated" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Fetch user without password
     const user = await User.findById(decoded.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.json({ user });
+    // Build final response object
+    let userData = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      gender: user.gender,
+    };
+
+    // If professor, fetch professor-specific fields
+    if (user.role === "professor") {
+      const professor = await Professor.findOne({ userId: user._id });
+
+      if (professor) {
+        userData.professor = {
+          id: professor._id,
+          phone: professor.phone || null,
+          department: professor.department || null,
+        };
+      }
+    }
+
+    res.json({ user: userData });
   } catch (error) {
     console.error("MeController Error:", error.message);
     res.status(401).json({ message: "Invalid token" });

@@ -1,10 +1,18 @@
 const Subject = require("../models/Subject");
 
 // GET all subjects
-async function getAllSubjects(_, res) {
+async function getAllSubjects(req, res) {
   try {
-    // populate the professor info
-    const subjects = await Subject.find().populate({
+    const { professorId } = req.query;
+
+    // Build filter object dynamically
+    const filter = {};
+    if (professorId) {
+      filter.professorId = professorId;
+    }
+
+    // Fetch subjects with optional filtering
+    const subjects = await Subject.find(filter).populate({
       path: "professorId",
       populate: { path: "userId", select: "name email gender" },
     });
@@ -14,10 +22,11 @@ async function getAllSubjects(_, res) {
       subjects,
     });
   } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: "Failed to fetch subjects", error: error.message });
+    console.error("getAllSubjects Error:", error);
+    res.status(500).json({
+      message: "Failed to fetch subjects",
+      error: error.message,
+    });
   }
 }
 
