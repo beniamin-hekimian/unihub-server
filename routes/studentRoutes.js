@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const {
-  getAllStudents,
-  createStudent,
-  updateStudent,
-  deleteStudent,
+    getAllStudents,
+    createStudent,
+    updateStudent,
+    deleteStudent,
 } = require("../controllers/studentController");
 
 // GET /students

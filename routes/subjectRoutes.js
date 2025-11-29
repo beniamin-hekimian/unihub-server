@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const {
-  getAllSubjects,
-  createSubject,
-  updateSubject,
-  deleteSubject,
+    getAllSubjects,
+    createSubject,
+    updateSubject,
+    deleteSubject,
 } = require("../controllers/subjectController");
 
 // GET /subjects
