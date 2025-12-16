@@ -1,5 +1,6 @@
 const Subject = require("../models/Subject");
 const Student = require("../models/Student");
+const Enrolment = require("../models/Enrolment");
 
 // GET all subjects
 async function getAllSubjects(req, res) {
@@ -50,7 +51,7 @@ async function createSubject(req, res) {
             populate: { path: "userId", select: "name email gender" },
         });
 
-        const students = await Student.find({year: subject.year});  
+        const students = await Student.find({year: subject.year});
         for (let student of students) {
             await Enrolment.create({
                 studentId: student._id,
@@ -83,15 +84,36 @@ async function updateSubject(req, res) {
             return res.status(404).json({ message: "Subject not found" });
         }
 
-        // 2️⃣ Update subject-specific fields
+        const oldYear = subject.year;
+
+        // 2️⃣ Update basic fields
         if (name) subject.name = name;
-        if (year) subject.year = year;
         if (department) subject.department = department;
         subject.professorId = professorId || null;
 
+        // 3️⃣ If year changed → resync enrolments
+        if (year && year !== oldYear) {
+            subject.year = year;
+
+            // Remove old enrolments
+            await Enrolment.deleteMany({ subjectId: subject._id });
+
+            // Enrol new year students
+            const students = await Student.find({ year });
+
+            const enrolments = students.map((student) => ({
+                studentId: student._id,
+                subjectId: subject._id,
+            }));
+
+            if (enrolments.length) {
+                await Enrolment.insertMany(enrolments);
+            }
+        }
+
         await subject.save();
 
-        // 3️⃣ Populate professorId for frontend
+        // 4️⃣ Populate professorId for frontend
         const populatedSubject = await Subject.findById(subject._id).populate({
             path: "professorId",
             populate: { path: "userId", select: "name email gender" },
@@ -121,8 +143,11 @@ async function deleteSubject(req, res) {
             return res.status(404).json({ message: "Subject not found" });
         }
 
-        // 2️⃣ Delete the subject
+        // 2️⃣ Delete that subject
         await Subject.findByIdAndDelete(subjectId);
+
+        // 3️⃣ Delete all the enrolments of that subject
+        await Enrolment.deleteMany({ subjectId });
 
         res.status(200).json({ message: "Subject deleted successfully" });
     } catch (error) {

@@ -1,13 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const {
-    getAllExams,
-    createExam,
-    updateExam,
-    deleteExam,
+  getExamsByProfessor,
+  getExamsByStudent,
+  createExam,
+  updateExam,
+  deleteExam,
 } = require("../controllers/examController");
-// GET all exams
-router.get("/", getAllExams);
+
+// GET /exams/professor?professorId=...
+router.get("/professor", getExamsByProfessor);
+
+// GET /exams/student?studentId=...
+router.get("/student", getExamsByStudent);
 
 // POST create exam
 router.post("/", createExam);

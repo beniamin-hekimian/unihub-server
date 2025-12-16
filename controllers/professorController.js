@@ -1,5 +1,6 @@
 const Professor = require("../models/Professor");
 const User = require("../models/User");
+
 // GET all professors
 async function getAllProfessors(req, res) {
     try {

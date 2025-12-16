@@ -1,21 +1,30 @@
 const express = require("express");
 const router = express.Router();
 const {
-    getAllResults,
-    createResult,
-    updateResult,
-    deleteResult,
+  getResultsByProfessor,
+  getResultsByExam,
+  getResultsByStudent,
+  createResult,
+  updateResult,
+  deleteResult,
 } = require("../controllers/resultController");
-// GET all results
-router.get("/", getAllResults);
 
-// POST create result
+// GET /results/professor?professorId=...
+router.get("/professor", getResultsByProfessor);
+
+// GET /results/exam/:examId
+router.get("/exam/:examId", getResultsByExam);
+
+// GET /results/student?studentId=...
+router.get("/student", getResultsByStudent);
+
+// POST /results
 router.post("/", createResult);
 
-// PUT update result
+// PUT /results/:id
 router.put("/:id", updateResult);
 
-// DELETE delete result
+// DELETE /results/:id
 router.delete("/:id", deleteResult);
 
 module.exports = router;

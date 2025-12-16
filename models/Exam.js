@@ -1,23 +1,20 @@
 const mongoose = require("mongoose");
 
 const examSchema = new mongoose.Schema({
-    name: {
-        type: String,
+    subjectId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
         required: true,
-        trim: true,
     },
     date: {
         type: Date,
         required: true,
     },
     duration: {
-        type: Number,
-        required: true,
+        type: Number, //minutes
     },
-    subjectId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Subject",
-        required: true,
+    location: {
+        type: String,
     },
 });
 

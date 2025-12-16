@@ -71,7 +71,7 @@ async function deleteByStudent(req, res) {
     }
 }
 
-// Create an enrolment
+// Update an enrolment
 async function updateEnrolment(req, res) {
     try {
         const { studentId, subjectId } = req.body;
@@ -94,6 +94,8 @@ async function updateEnrolment(req, res) {
         });
     }
 }
+
+// Create an enrolment
 async function createEnrolment(req, res) {
     try {
         const { studentId, subjectId } = req.body;

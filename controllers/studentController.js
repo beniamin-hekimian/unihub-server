@@ -4,11 +4,8 @@ const User = require("../models/User");
 const Enrolment = require("../models/Enrolment")
 
 // GET all students
-async function getAllStudents(req, res) {
+async function getAllStudents(_, res) {
     try {
-        const token = req.cookies["my-token-cookie"];
-        //if (!token)
-        // res.status(401).json({ message: "Not authenticated" });
         // populate the user info
         const students = await Student.find().populate(
             "userId",
@@ -138,6 +135,10 @@ async function deleteStudent(req, res) {
 
         // Delete the student
         await Student.findByIdAndDelete(studentId);
+
+        // Delete all the enrolments of that student
+        await Enrolment.deleteMany({ studentId });
+
         res.status(200).json({ message: "Student deleted successfully" });
     } catch (error) {
         console.error(error);

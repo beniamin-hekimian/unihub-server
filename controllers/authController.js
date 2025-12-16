@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Professor = require("../models/Professor");
+const Student = require("../models/Student");
 
 // POST /auth/signin
 async function signin(req, res) {
@@ -14,7 +15,6 @@ async function signin(req, res) {
         }
 
         // 2️⃣ Compare password
-        consol.log(user.password);
         if (password !== user.password) {
             return res.status(401).json({ message: "Incorrect password" });
         }
@@ -55,7 +55,19 @@ async function signin(req, res) {
             }
         }
 
-        // 7️⃣ Send response
+        // 7️⃣ If student → fetch student-specific data
+            if (user.role === "student") {
+                const student = await Student.findOne({ userId: user._id });
+                if (student) {
+                userData.student = {
+                    id: student._id,
+                    year: student.year || null,
+                    major: student.major || null,
+                };
+              }
+            }
+
+        // 8️⃣ Send response
         res.json({
             message: "Signed in successfully",
             user: userData,
@@ -100,6 +112,18 @@ async function me(req, res) {
                 };
             }
         }
+
+        // If student, fetch student-specific fields
+            if (user.role === "student") {
+                const student = await Student.findOne({ userId: user._id });
+                if (student) {
+                    userData.student = {
+                    id: student._id,
+                    year: student.year || null,
+                    major: student.major || null,
+                };
+              }
+            }
 
         res.json({ user: userData });
     } catch (error) {
