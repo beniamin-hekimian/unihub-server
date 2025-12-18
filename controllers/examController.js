@@ -88,14 +88,6 @@ async function createExam(req, res) {
       path: "subjectId",
     });
 
-    // const filter = {subjectId, passed: false};
-    // const enrolments = Enrolment.find(filter);
-    // for (const enrolment of enrolments) {
-    //     const result = await Result.create({
-    //         studentId: enrolment.studentId,
-    //         examId: populatedExam._id,
-    //     });
-    // }
     res.status(201).json({
       message: "Exam created successfully",
       exam: populatedExam,
@@ -130,9 +122,6 @@ async function deleteExam(req, res) {
   try {
     const { id } = req.params;
     const exam = await Exam.findByIdAndDelete(id);
-
-    // const filter = {examId: id};
-    // const results = await Result.deleteMany(filter);
 
     res.status(200).json({
       message: "Exam deleted successfully",

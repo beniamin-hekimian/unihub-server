@@ -9,24 +9,17 @@ async function getResultsByProfessor(req, res) {
     const { professorId } = req.query;
 
     if (!professorId) {
-      return res.status(400).json({
-        message: "Professor ID is required",
-      });
+      return res.status(400).json({ message: "Professor ID is required" });
     }
 
     // 1. Get subjects taught by this professor
     const subjects = await Subject.find({ professorId }).select("_id");
-
     const subjectIds = subjects.map((s) => s._id);
 
-    if (subjectIds.length === 0) {
-      return res.status(200).json({ exams: [] });
-    }
+    if (subjectIds.length === 0) return res.status(200).json({ exams: [] });
 
     // 2. Get exams for those subjects
-    const exams = await Exam.find({
-      subjectId: { $in: subjectIds },
-    })
+    const exams = await Exam.find({ subjectId: { $in: subjectIds } })
       .populate("subjectId", "name year department")
       .sort({ date: 1 });
 
@@ -34,21 +27,21 @@ async function getResultsByProfessor(req, res) {
     const examsWithResults = await Promise.all(
       exams.map(async (exam) => {
         const results = await Result.find({ examId: exam._id });
+        const totalStudents = await Enrolment.countDocuments({ subjectId: exam.subjectId._id });
 
         return {
           _id: exam._id,
           subject: exam.subjectId,
           date: exam.date,
           totalResults: results.length,
+          totalStudents,
           published:
             results.length > 0 ? results.every((r) => r.published) : false,
         };
       })
     );
 
-    res.status(200).json({
-      exams: examsWithResults,
-    });
+    res.status(200).json({ exams: examsWithResults });
   } catch (error) {
     console.error("getResultsByProfessor error:", error);
     res.status(500).json({ message: "Server error" });

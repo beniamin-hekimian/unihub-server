@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {
     getAllSubjects,
+    getSubjectsByProfessor,
     createSubject,
     updateSubject,
     deleteSubject,
@@ -9,6 +10,9 @@ const {
 
 // GET /subjects
 router.get("/", getAllSubjects);
+
+// GET /subjects/professor/:professorId
+router.get("/professors/:professorId", getSubjectsByProfessor);
 
 // POST /subjects
 router.post("/", createSubject);
