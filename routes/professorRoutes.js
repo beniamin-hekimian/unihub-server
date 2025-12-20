@@ -6,17 +6,18 @@ const {
     updateProfessor,
     deleteProfessor,
 } = require("../controllers/professorController");
+const { requireRole } = require("../middlewares/role");
 
 // GET /professors
-router.get("/", getAllProfessors);
+router.get("/", requireRole(["admin"]), getAllProfessors);
 
 // POST /professors
-router.post("/", createProfessor);
+router.post("/", requireRole(["admin"]), createProfessor);
 
 // PUT /professors/:id
-router.put("/:id", updateProfessor);
+router.put("/:id", requireRole(["admin"]), updateProfessor);
 
 // DELETE /professors/:id
-router.delete("/:id", deleteProfessor);
+router.delete("/:id", requireRole(["admin"]), deleteProfessor);
 
 module.exports = router;

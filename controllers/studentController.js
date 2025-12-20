@@ -2,6 +2,7 @@ const Student = require("../models/Student");
 const Subject = require("../models/Subject");
 const User = require("../models/User");
 const Enrolment = require("../models/Enrolment")
+const Result = require("../models/Result");
 
 // GET all students
 async function getAllStudents(_, res) {
@@ -121,32 +122,35 @@ async function updateStudent(req, res) {
 
 // Delete a student and its linked user
 async function deleteStudent(req, res) {
-    const studentId = req.params.id;
+  const studentId = req.params.id;
 
-    try {
-        // Find the student
-        const student = await Student.findById(studentId);
-        if (!student) {
-            return res.status(404).json({ message: "Student not found" });
-        }
-
-        // Delete the linked user
-        await User.findByIdAndDelete(student.userId);
-
-        // Delete the student
-        await Student.findByIdAndDelete(studentId);
-
-        // Delete all the enrolments of that student
-        await Enrolment.deleteMany({ studentId });
-
-        res.status(200).json({ message: "Student deleted successfully" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "Failed to delete student",
-            error: error.message,
-        });
+  try {
+    // Find the student
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
     }
+
+    // Delete the linked user
+    await User.findByIdAndDelete(student.userId);
+
+    // Delete the student
+    await Student.findByIdAndDelete(studentId);
+
+    // Delete all enrolments of that student
+    await Enrolment.deleteMany({ studentId });
+
+    // Delete all results of that student
+    await Result.deleteMany({ studentId });
+
+    res.status(200).json({ message: "Student deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Failed to delete student",
+      error: error.message,
+    });
+  }
 }
 
 module.exports = {

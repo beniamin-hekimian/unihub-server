@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
 const Subject = require("../models/Subject");
+const Student = require("../models/Student");
+const Enrolment = require("../models/Enrolment");
+const Exam = require("../models/Exam");
 
 // GET /subjects (admin)
 async function getAllSubjects(_, res) {
@@ -72,12 +75,29 @@ async function getSubjectsByProfessor(req, res) {
 // POST /subjects
 async function createSubject(req, res) {
   try {
+    // Create the subject
     const subject = await Subject.create(req.body);
+
+    // Find all students in the same year as the new subject
+    const students = await Student.find({ year: subject.year });
+
+    // Prepare enrolment documents
+    const enrolments = students.map(student => ({
+      studentId: student._id,
+      subjectId: subject._id
+    }));
+
+    // Insert all enrolments at once
+    if (enrolments.length > 0) {
+      await Enrolment.insertMany(enrolments);
+    }
+
     res.status(201).json({
       message: "Subject created successfully",
       subject,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       message: "Failed to create subject",
       error: error.message,
@@ -110,6 +130,25 @@ async function updateSubject(req, res) {
 async function deleteSubject(req, res) {
   try {
     const { id } = req.params;
+
+    // 1. Check if subject exists
+    const subject = await Subject.findById(id);
+    if (!subject) {
+      return res.status(404).json({
+        message: "Subject not found",
+      });
+    }
+
+    // 2. Check if exams exist for this subject
+    const hasExams = await Exam.exists({ subjectId: id });
+
+    if (hasExams) {
+      return res.status(400).json({
+        message: "Cannot delete subject. Delete related exams first.",
+      });
+    }
+
+    // 3. Safe to delete
     await Subject.findByIdAndDelete(id);
 
     res.status(200).json({

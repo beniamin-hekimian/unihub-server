@@ -6,17 +6,18 @@ const {
     updateStudent,
     deleteStudent,
 } = require("../controllers/studentController");
+const { requireRole } = require("../middlewares/role");
 
 // GET /students
-router.get("/", getAllStudents);
+router.get("/", requireRole(["admin"]), getAllStudents);
 
 // POST /students
-router.post("/", createStudent);
+router.post("/", requireRole(["admin"]), createStudent);
 
 // PUT /students/:id
-router.put("/:id", updateStudent);
+router.put("/:id", requireRole(["admin"]), updateStudent);
 
 // DELETE /students/:id
-router.delete("/:id", deleteStudent);
+router.delete("/:id", requireRole(["admin"]), deleteStudent);
 
 module.exports = router;

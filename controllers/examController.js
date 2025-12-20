@@ -1,6 +1,7 @@
 const Exam = require("../models/Exam");
 const Subject = require("../models/Subject");
 const Enrolment = require("../models/Enrolment");
+const Result = require("../models/Result");
 
 // Get exams for the professor
 async function getExamsByProfessor(req, res) {
@@ -121,10 +122,19 @@ async function updateExam(req, res) {
 async function deleteExam(req, res) {
   try {
     const { id } = req.params;
+
+    // 1. Delete all results for this exam
+    await Result.deleteMany({ examId: id });
+
+    // 2. Delete the exam itself
     const exam = await Exam.findByIdAndDelete(id);
 
+    if (!exam) {
+      return res.status(404).json({ message: "Exam not found" });
+    }
+
     res.status(200).json({
-      message: "Exam deleted successfully",
+      message: "Exam and related results deleted successfully",
       exam,
     });
   } catch (error) {
